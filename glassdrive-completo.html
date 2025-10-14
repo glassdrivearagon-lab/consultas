@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassDrive - Sistema de Consulta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0066CC 0%, #004999 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header img {
+            max-width: 300px;
+            height: auto;
+            margin-bottom: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #0066CC;
+            border-bottom: 3px solid #0066CC;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #0066CC;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #CC0000 0%, #990000 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(204, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .resultado {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .resultado.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            display: block;
+        }
+
+        .resultado.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            display: block;
+        }
+
+        .resultado h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .resultado p {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+
+        .resultado strong {
+            color: #0066CC;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #0066CC;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Estilos para la tabla */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #0066CC 0%, #004999 100%);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: linear-gradient(135deg, #0052a3 0%, #003a7a 100%);
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .empresa-lunia { background: rgba(0, 102, 204, 0.05); }
+        .empresa-walkaluna { background: rgba(204, 0, 0, 0.05); }
+        .empresa-luniaglas { background: rgba(40, 167, 69, 0.05); }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .filter-stats {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                padding: 15px;
+            }
+            
+            header img {
+                max-width: 200px;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gIoSUNDX1BST0ZJTEUAAQEAAAIYAAAAAAQwAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAAHRyWFlaAAABZAAAABRnWFlaAAABeAAAABRiWFlaAAABjAAAABRyVFJDAAABoAAAAChnVFJDAAABoAAAAChiVFJDAAABoAAAACh3dHB0AAAByAAAABRjcHJ0AAAB3AAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAFgAAAAcAHMAUgBHAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFhZWiAAAAAAAABvogAAOPUAAAOQWFlaIAAAAAAAAGKZAAC3hQAAGNpYWVogAAAAAAAAJKAAAA+EAAC2z3BhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABYWVogAAAAAAAA9tYAAQAAAADTLW1sdWMAAAAAAAAAAQAAAAxlblVTAAAAIAAAABwARwBvAG8AZwBsAGUAIABJAG4AYwAuACAAMgAwADEANv/bAEMAAwICAwICAwMDAwQDAwQFCAUFBAQFCgcHBggMCgwMCwoLCw0OEhANDhEOCwsQFhARExQVFRUMDxcYFhQYEhQVFP/bAEMBAwQEBQQFCQUFCRQNCw0UFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFP/AABEIAFoAyAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygZEUQqGxwdHwFSNCk5LhJGNy8RdDkzOSorLTFPFWN0dYk3ajRyOWKlZkZnZnknaZ/9oADAMBAAIRAxEAPwD9/KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoqGOQFSFUgck44NS0AFFFFABRRRQAUUUUAFQyDcTkcjvU1L0oAzqKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAqGQ/Ng45AGcGpqKAGq2+Nex9fzqSnUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQB//Z" alt="GlassDrive Logo">
+            <h1>GlassDrive</h1>
+            <p>Tu experto en lunas del automóvil</p>
+            <div class="stats">
+                📊 Base de datos: 38 líneas móviles | 3 empresas del grupo GlassDrive
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('telefono')">
+                📞 Buscar por Teléfono
+            </button>
+            <button class="tab" onclick="switchTab('usuario')">
+                👤 Buscar por Usuario
+            </button>
+            <button class="tab" onclick="switchTab('listar')">
+                📋 Listar Todos
+            </button>
+        </div>
+
+        <div class="content">
+            <!-- Tab: Buscar por Teléfono -->
+            <div id="tab-telefono" class="tab-content active">
+                <div class="info-box">
+                    <p>💡 <strong>Buscar por teléfono:</strong> Introduce el número completo (9 dígitos) para obtener el usuario y código PUK</p>
+                </div>
+                
+                <form onsubmit="buscarPorTelefono(event)">
+                    <div class="form-group">
+                        <label for="inputTelefono">Número de Teléfono</label>
+                        <input 
+                            type="text" 
+                            id="inputTelefono" 
+                            placeholder="Ej: 608835168"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn">🔍 Buscar Usuario y PUK</button>
+                </form>
+
+                <div class="resultado" id="resultado-telefono"></div>
+            </div>
+
+            <!-- Tab: Buscar por Usuario -->
+            <div id="tab-usuario" class="tab-content">
+                <div class="info-box">
+                    <p>💡 <strong>Buscar por usuario:</strong> Introduce el nombre completo o parcial para obtener el teléfono y código PUK</p>
+                </div>
+                
+                <form onsubmit="buscarPorUsuario(event)">
+                    <div class="form-group">
+                        <label for="inputUsuario">Nombre del Usuario</label>
+                        <input 
+                            type="text" 
+                            id="inputUsuario" 
+                            placeholder="Ej: Tablet Lepanto o Charles"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn">🔍 Buscar Teléfono y PUK</button>
+                </form>
+
+                <div class="resultado" id="resultado-usuario"></div>
+            </div>
+
+            <!-- Tab: Listar Todos -->
+            <div id="tab-listar" class="tab-content">
+                <div class="info-box">
+                    <p>📋 <strong>Listado completo:</strong> Todos los usuarios, teléfonos y códigos PUK de las 3 empresas GlassDrive</p>
+                </div>
+
+                <div class="search-box">
+                    <div class="form-group">
+                        <label for="filtroTabla">Filtrar resultados</label>
+                        <input 
+                            type="text" 
+                            id="filtroTabla" 
+                            placeholder="Buscar en la tabla..."
+                            oninput="filtrarTabla()"
+                        >
+                    </div>
+                    <button class="btn btn-secondary" onclick="exportarCSV()">📥 Exportar a CSV</button>
+                </div>
+
+                <div class="filter-stats" id="filterStats">
+                    Mostrando 38 de 38 usuarios
+                </div>
+
+                <div class="table-container">
+                    <table id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th onclick="ordenarTabla(0)">Usuario ↕</th>
+                                <th onclick="ordenarTabla(1)">Teléfono ↕</th>
+                                <th onclick="ordenarTabla(2)">PUK ↕</th>
+                                <th onclick="ordenarTabla(3)">Empresa ↕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody">
+                            <!-- Se llena dinámicamente con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 GlassDrive - Sistema de Consulta de Líneas Móviles</p>
+            <p>LUNIA ZARAGOZA S.L. (22) | WALKALUNA S.L. (7) | LUNIAGLAS ARAGON,S.L (9)</p>
+        </footer>
+    </div>
+
+    <script>
+        // Base de datos completa con todos los usuarios de las 3 hojas del Excel
+        const users = [
+            {nombre: "Tablet Lepanto", telefono: "608835168", puk: "52988900", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Tablet Utebo", telefono: "616079975", puk: "94904025", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "UM3", telefono: "618359698", puk: "32771115", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "UM1", telefono: "628102634", puk: "91646162", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Tablet San Genis", telefono: "649227456", puk: "59207825", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Tablet Plaza", telefono: "681272076", puk: "97321094", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Tablet Charles", telefono: "686793969", puk: "93691813", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "UM2", telefono: "699194336", puk: "85698017", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Eduardo ( UM )", telefono: "606920330", puk: "92350123", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Movil Charles", telefono: "608408633", puk: "29866219", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Sergio Charles", telefono: "616573101", puk: "43025058", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Oscar Lepanto", telefono: "616637430", puk: "61315418", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Fran San Genis", telefono: "618286929", puk: "12111820", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Movil Plaza", telefono: "618376652", puk: "27003737", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Vladimir ( UM )", telefono: "639865379", puk: "47668179", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Movil Utebo", telefono: "676058442", puk: "62774555", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Juanqui ( Plaza )", telefono: "679951556", puk: "32547127", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "David Castillo", telefono: "683609129", puk: "46142439", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Ruben ( Baja )", telefono: "689740306", puk: "60172975", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "??", telefono: "690943939", puk: "47388767", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Tablet Plaza", telefono: "618839418", puk: "21695073", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "UM", telefono: "699607799", puk: "91102696", empresa: "LUNIA ZARAGOZA S.L."},
+            {nombre: "Tablet  UM", telefono: "648478418", puk: "70561759", empresa: "WALKALUNA S.L."},
+            {nombre: "Tablet Fraga", telefono: "649552305", puk: "57042324", empresa: "WALKALUNA S.L."},
+            {nombre: "Tablet Barbastro", telefono: "660203412", puk: "69731552", empresa: "WALKALUNA S.L."},
+            {nombre: "Barbastro-Ruben", telefono: "681292276", puk: "20493859", empresa: "WALKALUNA S.L."},
+            {nombre: "Movil Fraga", telefono: "683319199", puk: "09139596", empresa: "WALKALUNA S.L."},
+            {nombre: "Tablet Lleida", telefono: "689014923", puk: "27343392", empresa: "WALKALUNA S.L."},
+            {nombre: "Tablet Monzón", telefono: "696198051", puk: "51841688", empresa: "WALKALUNA S.L."},
+            {nombre: "Oscar", telefono: "605267918", puk: "52941595", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "Movil Monzón", telefono: "605267919", puk: "29143543", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "Israel", telefono: "607752465", puk: "21323802", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "Toni", telefono: "670228167", puk: "60122020", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "Movil Lleida", telefono: "686589819", puk: "17331411", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "Jordi", telefono: "687969633", puk: "72500147", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "UM Monzón", telefono: "697978050", puk: "97739286", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "BAJA", telefono: "699039738", puk: "74237552", empresa: "LUNIAGLAS ARAGON,S.L"},
+            {nombre: "BAJA", telefono: "699677290", puk: "53261198", empresa: "LUNIAGLAS ARAGON,S.L"}
+        ];
+
+        let currentSortColumn = -1;
+        let sortAscending = true;
+        let filteredUsers = [...users];
+
+        // Cambiar entre pestañas
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            limpiarResultados();
+            
+            if (tab === 'listar') {
+                cargarTabla();
+            }
+        }
+
+        // Buscar por teléfono
+        function buscarPorTelefono(event) {
+            event.preventDefault();
+            
+            const telefono = document.getElementById('inputTelefono').value.trim();
+            const resultado = document.getElementById('resultado-telefono');
+            
+            const user = users.find(u => u.telefono === telefono);
+            
+            if (user) {
+                resultado.className = 'resultado success';
+                resultado.innerHTML = `
+                    <h3>✅ Usuario encontrado</h3>
+                    <p><strong>Usuario:</strong> ${user.nombre}</p>
+                    <p><strong>Empresa:</strong> ${user.empresa}</p>
+                    <p><strong>Código PUK:</strong> ${user.puk}</p>
+                `;
+            } else {
+                resultado.className = 'resultado error';
+                resultado.innerHTML = `
+                    <h3>❌ No encontrado</h3>
+                    <p>No se encontró ningún usuario con el teléfono: <strong>${telefono}</strong></p>
+                    <p style="margin-top: 10px; font-size: 13px;">Verifica que el número esté correcto (9 dígitos).</p>
+                `;
+            }
+        }
+
+        // Buscar por usuario
+        function buscarPorUsuario(event) {
+            event.preventDefault();
+            
+            const usuario = document.getElementById('inputUsuario').value.trim().toLowerCase();
+            const resultado = document.getElementById('resultado-usuario');
+            
+            const user = users.find(u => u.nombre.toLowerCase().includes(usuario));
+            
+            if (user) {
+                resultado.className = 'resultado success';
+                resultado.innerHTML = `
+                    <h3>✅ Usuario encontrado</h3>
+                    <p><strong>Usuario:</strong> ${user.nombre}</p>
+                    <p><strong>Teléfono:</strong> ${user.telefono}</p>
+                    <p><strong>Empresa:</strong> ${user.empresa}</p>
+                    <p><strong>Código PUK:</strong> ${user.puk}</p>
+                `;
+            } else {
+                resultado.className = 'resultado error';
+                resultado.innerHTML = `
+                    <h3>❌ No encontrado</h3>
+                    <p>No se encontró ningún usuario con el nombre: <strong>${usuario}</strong></p>
+                    <p style="margin-top: 10px; font-size: 13px;">Intenta con otro nombre o verifica la ortografía.</p>
+                `;
+            }
+        }
+
+        // Cargar tabla completa
+        function cargarTabla() {
+            filteredUsers = [...users];
+            mostrarTabla(filteredUsers);
+            actualizarEstadisticas(filteredUsers.length, users.length);
+        }
+
+        // Mostrar tabla
+        function mostrarTabla(datos) {
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = '';
+
+            datos.forEach(user => {
+                const row = document.createElement('tr');
+                
+                // Asignar clase CSS según empresa
+                if (user.empresa.includes('LUNIA ZARAGOZA')) {
+                    row.className = 'empresa-lunia';
+                } else if (user.empresa.includes('WALKALUNA')) {
+                    row.className = 'empresa-walkaluna';
+                } else if (user.empresa.includes('LUNIAGLAS')) {
+                    row.className = 'empresa-luniaglas';
+                }
+                
+                row.innerHTML = `
+                    <td>${user.nombre}</td>
+                    <td>${user.telefono}</td>
+                    <td>${user.puk}</td>
+                    <td>${user.empresa}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Filtrar tabla
+        function filtrarTabla() {
+            const filtro = document.getElementById('filtroTabla').value.toLowerCase();
+            
+            if (filtro === '') {
+                filteredUsers = [...users];
+            } else {
+                filteredUsers = users.filter(user => 
+                    user.nombre.toLowerCase().includes(filtro) ||
+                    user.telefono.includes(filtro) ||
+                    user.puk.includes(filtro) ||
+                    user.empresa.toLowerCase().includes(filtro)
+                );
+            }
+            
+            mostrarTabla(filteredUsers);
+            actualizarEstadisticas(filteredUsers.length, users.length);
+        }
+
+        // Ordenar tabla
+        function ordenarTabla(columna) {
+            if (currentSortColumn === columna) {
+                sortAscending = !sortAscending;
+            } else {
+                sortAscending = true;
+                currentSortColumn = columna;
+            }
+
+            const campos = ['nombre', 'telefono', 'puk', 'empresa'];
+            const campo = campos[columna];
+
+            filteredUsers.sort((a, b) => {
+                let valorA = a[campo].toString().toLowerCase();
+                let valorB = b[campo].toString().toLowerCase();
+                
+                if (sortAscending) {
+                    return valorA.localeCompare(valorB);
+                } else {
+                    return valorB.localeCompare(valorA);
+                }
+            });
+
+            mostrarTabla(filteredUsers);
+        }
+
+        // Actualizar estadísticas
+        function actualizarEstadisticas(mostrados, total) {
+            document.getElementById('filterStats').textContent = 
+                `Mostrando ${mostrados} de ${total} usuarios`;
+        }
+
+        // Exportar a CSV
+        function exportarCSV() {
+            let csv = 'Usuario,Teléfono,PUK,Empresa\n';
+            
+            filteredUsers.forEach(user => {
+                csv += `"${user.nombre}","${user.telefono}","${user.puk}","${user.empresa}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'glassdrive_usuarios.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // Limpiar resultados
+        function limpiarResultados() {
+            document.querySelectorAll('.resultado').forEach(r => r.style.display = 'none');
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            // Limpiar resultados al escribir en campos de búsqueda
+            document.getElementById('inputTelefono').addEventListener('input', limpiarResultados);
+            document.getElementById('inputUsuario').addEventListener('input', limpiarResultados);
+        });
+    </script>
+</body>
+</html>
