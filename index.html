@@ -153,16 +153,8 @@
             box-shadow: 0 5px 15px rgba(204, 0, 0, 0.3);
         }
 
-        .btn:active {
-            transform: translateY(0);
-        }
-
         .btn-secondary {
             background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        }
-
-        .btn-secondary:hover {
-            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
         }
 
         .resultado {
@@ -212,12 +204,6 @@
             color: #555;
         }
 
-        /* Estilos para la tabla */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -225,6 +211,7 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
         }
 
         th, td {
@@ -238,32 +225,10 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
-            user-select: none;
-        }
-
-        th:hover {
-            background: linear-gradient(135deg, #0052a3 0%, #003a7a 100%);
         }
 
         tr:hover {
             background: #f8f9fa;
-        }
-
-        .empresa-lunia { background: rgba(0, 102, 204, 0.05); }
-        .empresa-walkaluna { background: rgba(204, 0, 0, 0.05); }
-        .empresa-luniaglas { background: rgba(40, 167, 69, 0.05); }
-
-        .search-box {
-            margin-bottom: 20px;
-        }
-
-        .filter-stats {
-            margin: 15px 0;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            font-size: 14px;
-            color: #666;
         }
 
         footer {
@@ -288,22 +253,6 @@
             .tabs {
                 flex-direction: column;
             }
-            
-            .tab {
-                padding: 15px;
-            }
-            
-            header img {
-                max-width: 200px;
-            }
-            
-            table {
-                font-size: 14px;
-            }
-            
-            th, td {
-                padding: 8px 10px;
-            }
         }
     </style>
 </head>
@@ -311,17 +260,21 @@
     <div class="container">
         <header>
             <img src="logo.jpg" alt="Logo GlassDrive">
-            
+            <h1>GlassDrive</h1>
+            <p>Tu experto en lunas del automóvil</p>
+            <div class="stats">
+                📊 Base de datos: 38 líneas móviles | 3 empresas del grupo GlassDrive
+            </div>
         </header>
 
         <div class="tabs">
-            <button class="tab active" data-tab="telefono">
+            <button class="tab active" onclick="showTab('telefono')">
                 📞 Buscar por Teléfono
             </button>
-            <button class="tab" data-tab="usuario">
+            <button class="tab" onclick="showTab('usuario')">
                 👤 Buscar por Usuario
             </button>
-            <button class="tab" data-tab="listar">
+            <button class="tab" onclick="showTab('listar')">
                 📋 Listar Todos
             </button>
         </div>
@@ -330,18 +283,14 @@
             <!-- Tab: Buscar por Teléfono -->
             <div id="tab-telefono" class="tab-content active">
                 <div class="info-box">
-                    <p>💡 <strong>Buscar por teléfono:</strong> Introduce el número completo (9 dígitos) para obtener el usuario y código PUK</p>
+                    <p>💡 <strong>Buscar por teléfono:</strong> Introduce el número completo (9 dígitos)</p>
                 </div>
                 
                 <div class="form-group">
                     <label for="inputTelefono">Número de Teléfono</label>
-                    <input 
-                        type="text" 
-                        id="inputTelefono" 
-                        placeholder="Ej: 608835168"
-                    >
+                    <input type="text" id="inputTelefono" placeholder="Ej: 608835168">
                 </div>
-                <button class="btn" onclick="buscarPorTelefono()">🔍 Buscar Usuario y PUK</button>
+                <button type="button" class="btn" onclick="buscarPorTelefono()">🔍 Buscar Usuario y PUK</button>
 
                 <div class="resultado" id="resultado-telefono"></div>
             </div>
@@ -349,18 +298,14 @@
             <!-- Tab: Buscar por Usuario -->
             <div id="tab-usuario" class="tab-content">
                 <div class="info-box">
-                    <p>💡 <strong>Buscar por usuario:</strong> Introduce el nombre completo o parcial para obtener el teléfono y código PUK</p>
+                    <p>💡 <strong>Buscar por usuario:</strong> Introduce el nombre completo o parcial</p>
                 </div>
                 
                 <div class="form-group">
                     <label for="inputUsuario">Nombre del Usuario</label>
-                    <input 
-                        type="text" 
-                        id="inputUsuario" 
-                        placeholder="Ej: Tablet Lepanto o Charles"
-                    >
+                    <input type="text" id="inputUsuario" placeholder="Ej: Tablet Lepanto">
                 </div>
-                <button class="btn" onclick="buscarPorUsuario()">🔍 Buscar Teléfono y PUK</button>
+                <button type="button" class="btn" onclick="buscarPorUsuario()">🔍 Buscar Teléfono y PUK</button>
 
                 <div class="resultado" id="resultado-usuario"></div>
             </div>
@@ -368,52 +313,37 @@
             <!-- Tab: Listar Todos -->
             <div id="tab-listar" class="tab-content">
                 <div class="info-box">
-                    <p>📋 <strong>Listado completo:</strong> Todos los usuarios, teléfonos y códigos PUK de las 3 empresas GlassDrive</p>
+                    <p>📋 <strong>Listado completo:</strong> Todos los usuarios de las 3 empresas GlassDrive</p>
                 </div>
 
-                <div class="search-box">
-                    <div class="form-group">
-                        <label for="filtroTabla">Filtrar resultados</label>
-                        <input 
-                            type="text" 
-                            id="filtroTabla" 
-                            placeholder="Buscar en la tabla..."
-                            onkeyup="filtrarTabla()"
-                        >
-                    </div>
-                    <button class="btn btn-secondary" onclick="exportarCSV()">📥 Exportar a CSV</button>
+                <div class="form-group">
+                    <label for="filtroTabla">Filtrar resultados</label>
+                    <input type="text" id="filtroTabla" placeholder="Buscar..." onkeyup="filtrarTabla()">
                 </div>
+                <button type="button" class="btn btn-secondary" onclick="exportarCSV()">📥 Exportar a CSV</button>
 
-                <div class="filter-stats" id="filterStats">
-                    Mostrando 38 de 38 usuarios
-                </div>
-
-                <div class="table-container">
-                    <table id="tablaUsuarios">
-                        <thead>
-                            <tr>
-                                <th onclick="ordenarTabla(0)">Usuario ↕</th>
-                                <th onclick="ordenarTabla(1)">Teléfono ↕</th>
-                                <th onclick="ordenarTabla(2)">PUK ↕</th>
-                                <th onclick="ordenarTabla(3)">Empresa ↕</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaBody">
-                            <!-- Se llena dinámicamente con JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
+                <table id="tablaUsuarios">
+                    <thead>
+                        <tr>
+                            <th onclick="ordenarTabla(0)">Usuario ↕</th>
+                            <th onclick="ordenarTabla(1)">Teléfono ↕</th>
+                            <th onclick="ordenarTabla(2)">PUK ↕</th>
+                            <th onclick="ordenarTabla(3)">Empresa ↕</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody">
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <footer>
             <p>&copy; 2025 GlassDrive - Sistema de Consulta de Líneas Móviles</p>
-            <p>LUNIA ZARAGOZA S.L. (22) | WALKALUNA S.L. (7) | LUNIAGLAS ARAGON,S.L (9)</p>
         </footer>
     </div>
 
     <script>
-        // Base de datos completa con todos los usuarios de las 3 hojas del Excel
+        // Base de datos de usuarios
         const users = [
             {nombre: "Tablet Lepanto", telefono: "608835168", puk: "52988900", empresa: "LUNIA ZARAGOZA S.L."},
             {nombre: "Tablet Utebo", telefono: "616079975", puk: "94904025", empresa: "LUNIA ZARAGOZA S.L."},
@@ -455,50 +385,15 @@
             {nombre: "BAJA", telefono: "699677290", puk: "53261198", empresa: "LUNIAGLAS ARAGON,S.L"}
         ];
 
-        let currentSortColumn = -1;
-        let sortAscending = true;
         let filteredUsers = [...users];
 
-        // Inicializar cuando se carga la página
-        document.addEventListener('DOMContentLoaded', function() {
-            // Event listeners para las pestañas
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    switchTab(tabName);
-                });
-            });
+        // Cambiar pestañas
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // Event listeners para Enter en los campos de búsqueda
-            document.getElementById('inputTelefono').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    buscarPorTelefono();
-                }
-            });
-            
-            document.getElementById('inputUsuario').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    buscarPorUsuario();
-                }
-            });
-            
-            // Limpiar resultados cuando se escribe
-            document.getElementById('inputTelefono').addEventListener('input', limpiarResultados);
-            document.getElementById('inputUsuario').addEventListener('input', limpiarResultados);
-        });
-
-        // Cambiar entre pestañas
-        function switchTab(tabName) {
-            // Remover clase active de todas las pestañas y contenidos
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            // Activar pestaña seleccionada
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            
-            // Limpiar resultados
-            limpiarResultados();
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
             
             if (tabName === 'listar') {
                 cargarTabla();
@@ -510,12 +405,11 @@
             const telefono = document.getElementById('inputTelefono').value.trim();
             const resultado = document.getElementById('resultado-telefono');
             
+            console.log('Buscando teléfono:', telefono); // Debug
+            
             if (!telefono) {
                 resultado.className = 'resultado error';
-                resultado.innerHTML = `
-                    <h3>⚠️ Campo vacío</h3>
-                    <p>Por favor, introduce un número de teléfono.</p>
-                `;
+                resultado.innerHTML = '<h3>⚠️ Campo vacío</h3><p>Introduce un número de teléfono.</p>';
                 return;
             }
             
@@ -533,8 +427,7 @@
                 resultado.className = 'resultado error';
                 resultado.innerHTML = `
                     <h3>❌ No encontrado</h3>
-                    <p>No se encontró ningún usuario con el teléfono: <strong>${telefono}</strong></p>
-                    <p style="margin-top: 10px; font-size: 13px;">Verifica que el número esté correcto (9 dígitos).</p>
+                    <p>No se encontró el teléfono: <strong>${telefono}</strong></p>
                 `;
             }
         }
@@ -544,12 +437,11 @@
             const usuario = document.getElementById('inputUsuario').value.trim().toLowerCase();
             const resultado = document.getElementById('resultado-usuario');
             
+            console.log('Buscando usuario:', usuario); // Debug
+            
             if (!usuario) {
                 resultado.className = 'resultado error';
-                resultado.innerHTML = `
-                    <h3>⚠️ Campo vacío</h3>
-                    <p>Por favor, introduce el nombre de un usuario.</p>
-                `;
+                resultado.innerHTML = '<h3>⚠️ Campo vacío</h3><p>Introduce el nombre de un usuario.</p>';
                 return;
             }
             
@@ -568,43 +460,29 @@
                 resultado.className = 'resultado error';
                 resultado.innerHTML = `
                     <h3>❌ No encontrado</h3>
-                    <p>No se encontró ningún usuario con el nombre: <strong>${usuario}</strong></p>
-                    <p style="margin-top: 10px; font-size: 13px;">Intenta con otro nombre o verifica la ortografía.</p>
+                    <p>No se encontró el usuario: <strong>${usuario}</strong></p>
                 `;
             }
         }
 
-        // Cargar tabla completa
+        // Cargar tabla
         function cargarTabla() {
             filteredUsers = [...users];
             mostrarTabla(filteredUsers);
-            actualizarEstadisticas(filteredUsers.length, users.length);
         }
 
-        // Mostrar tabla
         function mostrarTabla(datos) {
             const tbody = document.getElementById('tablaBody');
             tbody.innerHTML = '';
-
+            
             datos.forEach(user => {
-                const row = document.createElement('tr');
-                
-                // Asignar clase CSS según empresa
-                if (user.empresa.includes('LUNIA ZARAGOZA')) {
-                    row.className = 'empresa-lunia';
-                } else if (user.empresa.includes('WALKALUNA')) {
-                    row.className = 'empresa-walkaluna';
-                } else if (user.empresa.includes('LUNIAGLAS')) {
-                    row.className = 'empresa-luniaglas';
-                }
-                
+                const row = tbody.insertRow();
                 row.innerHTML = `
                     <td>${user.nombre}</td>
                     <td>${user.telefono}</td>
                     <td>${user.puk}</td>
                     <td>${user.empresa}</td>
                 `;
-                tbody.appendChild(row);
             });
         }
 
@@ -624,44 +502,18 @@
             }
             
             mostrarTabla(filteredUsers);
-            actualizarEstadisticas(filteredUsers.length, users.length);
         }
 
         // Ordenar tabla
         function ordenarTabla(columna) {
-            if (currentSortColumn === columna) {
-                sortAscending = !sortAscending;
-            } else {
-                sortAscending = true;
-                currentSortColumn = columna;
-            }
-
             const campos = ['nombre', 'telefono', 'puk', 'empresa'];
             const campo = campos[columna];
-
-            filteredUsers.sort((a, b) => {
-                let valorA = a[campo].toString().toLowerCase();
-                let valorB = b[campo].toString().toLowerCase();
-                
-                if (sortAscending) {
-                    return valorA.localeCompare(valorB);
-                } else {
-                    return valorB.localeCompare(valorA);
-                }
-            });
-
+            
+            filteredUsers.sort((a, b) => a[campo].localeCompare(b[campo]));
             mostrarTabla(filteredUsers);
         }
 
-        // Actualizar estadísticas
-        function actualizarEstadisticas(mostrados, total) {
-            const filterStats = document.getElementById('filterStats');
-            if (filterStats) {
-                filterStats.textContent = `Mostrando ${mostrados} de ${total} usuarios`;
-            }
-        }
-
-        // Exportar a CSV
+        // Exportar CSV
         function exportarCSV() {
             let csv = 'Usuario,Teléfono,PUK,Empresa\n';
             
@@ -669,27 +521,25 @@
                 csv += `"${user.nombre}","${user.telefono}","${user.puk}","${user.empresa}"\n`;
             });
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', 'glassdrive_usuarios.csv');
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'glassdrive_usuarios.csv';
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
-        // Limpiar resultados
-        function limpiarResultados() {
-            document.querySelectorAll('.resultado').forEach(r => {
-                r.style.display = 'none';
-                r.className = 'resultado';
+        // Event listeners para Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('inputTelefono').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') buscarPorTelefono();
             });
-        }
+            
+            document.getElementById('inputUsuario').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') buscarPorUsuario();
+            });
+        });
     </script>
 </body>
 </html>
