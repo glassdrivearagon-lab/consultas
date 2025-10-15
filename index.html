@@ -27,77 +27,43 @@
             overflow: hidden;
         }
 
+        /* Header con fondo blanco limpio para el logo */
         header {
-            background: linear-gradient(135deg, #0066CC 0%, #004999 100%);
-            color: white;
+            background: white;
+            color: #0066CC;
             padding: 30px;
             text-align: center;
+            border-bottom: none;
         }
 
-    header {
-    background: white; /* Fondo blanco para que el logo se integre */
-    color: #0066CC; /* Texto azul para mantener identidad GlassDrive */
-    padding: 30px;
-    text-align: center;
-    border-bottom: 3px solid #0066CC; /* Línea azul inferior para separar */
-}
-
-header img {
-    max-width: 300px;
-    width: 60vw;
-    min-width: 120px;
-    height: auto;
-    margin-bottom: 15px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-header h1 {
-    font-size: 28px;
-    margin-bottom: 5px;
-    color: #0066CC; /* Azul */
-}
-
-header p {
-    font-size: 14px;
-    color: #333; /* Gris oscuro */
-}
-
-.stats {
-    background: rgba(0, 102, 204, 0.1); /* Azul muy suave */
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
-    font-size: 13px;
-    color: #0066CC;
-}
-
-
-@media (max-width: 500px) {
-    header img {
-        max-width: 90vw;
-        min-width: 60px;
-        padding: 3vw;
-    }
-}
+        /* Logo completamente integrado en fondo blanco */
+        header img {
+            max-width: 400px;
+            width: 80%;
+            height: auto;
+            margin: 0 auto 20px;
+            display: block;
+        }
 
         header h1 {
-            font-size: 28px;
+            font-size: 24px;
             margin-bottom: 5px;
+            color: #0066CC;
+            font-weight: 600;
         }
 
         header p {
             font-size: 14px;
-            opacity: 0.9;
+            color: #666;
         }
 
         .stats {
-            background: rgba(255,255,255,0.1);
+            background: rgba(0, 102, 204, 0.08);
             padding: 10px;
             border-radius: 5px;
-            margin-top: 10px;
+            margin-top: 15px;
             font-size: 13px;
+            color: #0066CC;
         }
 
         .tabs {
@@ -292,15 +258,25 @@ header p {
             .tabs {
                 flex-direction: column;
             }
+            
+            header img {
+                max-width: 90%;
+            }
+            
+            header h1 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    
+    <div class="container">
         <header>
-            <img src="logo.jpg" alt="Logo GlassDrive">
-           
-            <p><h1>Consulta de líneas Móviles</h1></p>
+            <img src="logo.jpg" alt="GlassDrive - Tu experto en lunas del automóvil">
+            <h1>Consulta de Líneas Móviles</h1>
+            <div class="stats">
+                📊 Base de datos: 38 líneas móviles | 3 empresas del grupo GlassDrive
+            </div>
         </header>
 
         <div class="tabs">
@@ -441,8 +417,6 @@ header p {
             const telefono = document.getElementById('inputTelefono').value.trim();
             const resultado = document.getElementById('resultado-telefono');
             
-            console.log('Buscando teléfono:', telefono); // Debug
-            
             if (!telefono) {
                 resultado.className = 'resultado error';
                 resultado.innerHTML = '<h3>⚠️ Campo vacío</h3><p>Introduce un número de teléfono.</p>';
@@ -472,8 +446,6 @@ header p {
         function buscarPorUsuario() {
             const usuario = document.getElementById('inputUsuario').value.trim().toLowerCase();
             const resultado = document.getElementById('resultado-usuario');
-            
-            console.log('Buscando usuario:', usuario); // Debug
             
             if (!usuario) {
                 resultado.className = 'resultado error';
