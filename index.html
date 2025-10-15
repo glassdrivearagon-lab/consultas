@@ -34,21 +34,45 @@
             text-align: center;
         }
 
-    header img {
+    header {
+    background: white; /* Fondo blanco para que el logo se integre */
+    color: #0066CC; /* Texto azul para mantener identidad GlassDrive */
+    padding: 30px;
+    text-align: center;
+    border-bottom: 3px solid #0066CC; /* Línea azul inferior para separar */
+}
+
+header img {
     max-width: 300px;
     width: 60vw;
     min-width: 120px;
     height: auto;
     margin-bottom: 15px;
-    /* Elimina o comenta las siguientes líneas si existen: */
-    /* background: white; */
-    /* padding: 10px; */
-    /* border-radius: 8px; */
-    /* border: 3px solid #ffffff; */
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
+
+header h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    color: #0066CC; /* Azul */
+}
+
+header p {
+    font-size: 14px;
+    color: #333; /* Gris oscuro */
+}
+
+.stats {
+    background: rgba(0, 102, 204, 0.1); /* Azul muy suave */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #0066CC;
+}
+
 
 @media (max-width: 500px) {
     header img {
