@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búsqueda de Eurocode - Talleres</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-search {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-search:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #d0d0d0;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .eurocode-badge {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .taller-badge {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: #333;
+            font-size: 1em;
+        }
+
+        .result-value.empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        .error-message {
+            background: #ffe0e0;
+            border-left: 5px solid #ff4444;
+            padding: 20px;
+            border-radius: 8px;
+            color: #cc0000;
+            font-weight: 600;
+            animation: fadeIn 0.5s;
+        }
+
+        .info-message {
+            background: #e3f2fd;
+            border-left: 5px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            color: #1565C0;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Búsqueda de Eurocode</h1>
+        <p class="subtitle">Sistema de consulta de vehículos por taller</p>
+
+        <div class="info-message">
+            💡 Ingresa el código eurocode para buscar el vehículo y ver en qué taller se encuentra
+        </div>
+
+        <div class="search-box">
+            <div class="input-group">
+                <input type="text" id="searchInput" placeholder="Ingresa el eurocode (ej: 7240ACC)" autocomplete="off">
+                <button class="btn-search" onclick="buscar()">🔍 Buscar</button>
+                <button class="btn-clear" onclick="limpiar()">✖ Limpiar</button>
+            </div>
+        </div>
+
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        // Base de datos de vehículos
+        const vehiculos = [{"eurocode": "7240ACC", "modelo": "MEGANE COUPE", "año": "95", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6288AGSV", "modelo": "OPEL MERIVA", "año": "2003", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8618AGAMVZ1W", "modelo": "VW GOLF 3P", "año": "2012", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8832AGSMVZ1R", "modelo": "VOLVO S40 4P", "año": "2003", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2480AGAMVZ", "modelo": "BMW X2 5P F39", "año": "2018", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6044AGSMV1P", "modelo": "NISSAN QASQHAI", "año": "2007", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6037AGSBLVZ", "modelo": "NISSAN PATHFINDER 5P R51", "año": "2005", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3070AGSEHMVZ1C", "modelo": "FORD TRANSIT", "año": "2013", "sensor": "X", "camara": "", "senscama": "", "termico": "X", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "5381AGAMVW", "modelo": "MERCEDES CLASE A 5P", "año": "2012", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6312AGSVZ1D", "modelo": "OPEL CORSA 3P", "año": "2006", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3016AGNBL", "modelo": "DAEWO NUBIRA 4P SEDAN", "año": "2003", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2449AGSGNMVW1B", "modelo": "BMW X3 5P E83", "año": "2003", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "7310AGAMVZ", "modelo": "RENAULT CLIO 5P", "año": "2019", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8572AGSGYVW", "modelo": "AUDI A4", "año": "2004", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6084AGACIMVZ95", "modelo": "NISSAN QASQHAI", "año": "2017", "sensor": "", "camara": "", "senscama": "X", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8648AGAMVZ", "modelo": "AUDI Q3", "año": "2018", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "4353AGNMOV", "modelo": "KIA RIO 5P", "año": "2017", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "X", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6284AGSM2B", "modelo": "OPEL ASTRA 3P", "año": "98", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "4431AGNMV1P", "modelo": "KIA CEED 5P", "año": "2006", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8633AGAMVZ", "modelo": "AUDI A5 SPORTBACK 5P", "año": "2016", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3016AGNBLAHM1B", "modelo": "DAEWO LACETTI 5P", "año": "2004", "sensor": "X", "camara": "", "senscama": "", "termico": "X", "antniebla": "X", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6293AGNMVWZ1R", "modelo": "OPEL INSIGNIA 4P", "año": "2018", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3770AGSVZ1C", "modelo": "FORD TRANSIT", "año": "2013", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "7816AGAMVW1B", "modelo": "SKODA OCTAVIA 5P", "año": "2013", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8589AGAGYMVZ1I", "modelo": "AUDI A4 4P", "año": "2007", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2763AGSCMVZ", "modelo": "CITROEN BERLINGO", "año": "2018", "sensor": "", "camara": "", "senscama": "X", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "7621AGCMVZGW", "modelo": "SEAT IBIZA 5P", "año": "2017", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8630AGAVZ", "modelo": "VW TOURAN", "año": "2015", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2740AGAMVZ1B", "modelo": "CITROEN C5 4P", "año": "2008", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3769AGAHVW6P", "modelo": "FORD TRANSIT CUSTOM", "año": "2016", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6294AGSVW", "modelo": "OPEL VECTRA 4P", "año": "2002", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6552AGSVZ", "modelo": "PEUGEOT BOXER", "año": "2006", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8659AGAVZ", "modelo": "VW CADDY", "año": "2020", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2465AGSV1P", "modelo": "BMW SERI 3 F30/F31", "año": "2002", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "4443AGNBLMOV", "modelo": "KIA CARENS", "año": "2013", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "7610AGSVZ", "modelo": "SEAT IBIZA 3P", "año": "2002", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3352AGS6Z", "modelo": "FIAT MULTIPLA", "año": "2004", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2764AGACIMVW", "modelo": "DS3 CROSSBACK 5P", "año": "2019", "sensor": "", "camara": "", "senscama": "X", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "4438AGABLMV", "modelo": "KIA SPORTAGE 5P", "año": "2010", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3374AGACIMVZ95", "modelo": "FIAT 500X", "año": "2015", "sensor": "", "camara": "", "senscama": "X", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "5179AGACIMW5V", "modelo": "MAZDA CX-5 5P", "año": "2012", "sensor": "", "camara": "", "senscama": "X", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8572AGSVW1B", "modelo": "AUDI A4 SEDAN 4P", "año": "2000", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8614AGAGYMVW1", "modelo": "AUDI Q3 5P", "año": "2011", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8614AGAMVZ6T", "modelo": "AUDI Q3 11-18 05/15", "año": "2015", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "5184AGAVW", "modelo": "MAZDA CX3", "año": "2015", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "7274AGSV1C", "modelo": "RENAULT KANGOO", "año": "2008", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8618AGAVZ", "modelo": "VW GOLF 3 -5 VARIANT", "año": "2013", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8580AGSVW", "modelo": "AUDI A3 3P", "año": "2003", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6283ACCBLV", "modelo": "OPEL ZAFIRA", "año": "99", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "5179AGACIW1V", "modelo": "MAZDA CX5 5P FRENADA", "año": "2012", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "7619AGAVZ1D", "modelo": "SEAT LEON", "año": "2012", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "6290AGS", "modelo": "OPEL CORSA 3P", "año": "2000", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8020ALGW1B", "modelo": "SUZUKI VITARA", "año": "1998", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3351AGS", "modelo": "FIAT PUNTO 3P", "año": "1999", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "7260AGAMV1R", "modelo": "RENAULT MEGANE 3-5P", "año": "2002", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2434AGNMV1B", "modelo": "BMW SERIE 5 E39", "año": "1999", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "3770AGSVZ1C-DUP", "modelo": "FORD TRANSIT TOURNEO CONNECT", "año": "2013", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "5354ABSMV", "modelo": "MERCEDES 2001 CLASE E W211", "año": "2002", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8831AGSBLVW1M", "modelo": "VOLVO XC90PB VE/AZ", "año": "2002", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8598AGAMVW", "modelo": "VW PASSAT CC COUPE 4P", "año": "2008", "sensor": "X", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "8421AGACMVZ1L", "modelo": "TOYOTA CH-R 5P", "año": "2016", "sensor": "", "camara": "", "senscama": "X", "termico": "", "antniebla": "", "puestos": "", "taller": "Lepanto"}, {"eurocode": "2448AGNMV1B", "modelo": "BMW S1 E87 04 5P/E81 07 3P/E82 07 CPE/E88 07 CABRIO PB SENSOR VENT GN Verde", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "2722ACL1B", "modelo": "CITROEN JUMPER / INCOLORO / CON BASE", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "2732AGAMVW1P", "modelo": "CITR C4 SEPT04 PB ACUSTICO RETROV ANTIDESLUM SENSOR GS Verde", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "2741ACCMVZ2P", "modelo": "CITR BERLINGO/PEUG PARTNER 08 PB CON BAS SENSOR VENT CC Control Solar Vidrio", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "4017AGNCMV1L", "modelo": "HONDA HR-V / CAMARA / SENSOR", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "4442AGNV", "modelo": "KIA CEE'D 12 5P PB VENT GN Verde", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "5352AGSMVW7T", "modelo": "MERCEDES C-CLASS SENSOR", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "5391AGACMVZ2L", "modelo": "MERCEDES GLC / SENSOR / ACUSTICO / CAMARA", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "7274AGSMV1B", "modelo": "RENA KANGOO 07/MERC CITAN 12 PB SENSOR VENT GS Verde Solar", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "7281AGSV", "modelo": "RENA MASTER 09/OPEL MOVANO 10/NISS NV400 11 PB VENT GS Verde Solar", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "7320AGNCMV", "modelo": "DACIA DUSTER VERDE / SENSOR / CAMARA", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "7614AGSMVZ1T", "modelo": "SEAT IBIZA 13 3/5P PB (SIN BAS) (SENSOR REDONDO) VENT GS Verde Solar", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "7823AGACMVZ1L", "modelo": "SKOD KAMIQ 19 PB ACUSTICO CAMARA MODIF. SENSOR VIN GS Verde", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "8409AGACMZ1L", "modelo": "TOYOTA AURIS / CAMARA / SENSOR", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "8572AGAGYMVW1B", "modelo": "AUDI A4 00/SEAT EXEO 09 PB ACUSTICO SENSOR VENT GSGY Verde Banda: Gris", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "8581AGSCMVZ6T", "modelo": "VW CADDY SENSOR / CAMARA /", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "8582AGSGYMVW", "modelo": "AUDI A6 04 PB SENSOR VENT GSGY Verde Solar Banda: Gris", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "8618AGAMVZ1W-PLAZA", "modelo": "VOLK GOLF VII ENE16 PB ACUSTICO SENSOR VENT GS Verde", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "8635AGSIVZ", "modelo": "VOLK CRAFTER/MAN TGE 17 PB VENT SIN BAS VENT GS Verde Solar", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "8840AGNMPVWZ1R", "modelo": "VOLV XC60 08 PB SENSOR VENT GN Verde", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Plaza"}, {"eurocode": "7290AGSV1M", "modelo": "RENAULT CLIO IV 5D 12-", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "3351AGS-UTEBO", "modelo": "FIAT PUNTO 3D/5D/VAN 99-05", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "6544AGSGMVZ2P", "modelo": "PEUGEOT 407 4P SEDAN 2004-2011", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8649AGSCMVZ1L", "modelo": "VW T-CROSS 5P TODOTERRENO 2019-", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8586AGSVZ1H", "modelo": "VW JETTA 4P SEDAN 2005-2011 / VW GOLF VARIANT 5P BREAK 2007-2013", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "7293AGSMV", "modelo": "RENAULT CAPTUR 5P TODOTERRENO 2013-2019", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8409AGAMZ", "modelo": "TOYOTA AURIS 5P PORTÓN 2012-2018", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "6302AGNVZ6I", "modelo": "OPEL ASTRA 5P BREAK H 2004-2012", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "5166AGNMW3B", "modelo": "MAZDA 3 5P PORTÓN 2003-2009", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8631AGAMVZ", "modelo": "AUDI A4 5P BREAK 2015-", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "7043AGACMOVW", "modelo": "(DEFECTUOSO)LAND ROVER RANGE ROVER EVOQUE 5P TODOTERRENO 2011-", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8570AGNZ", "modelo": "VW POLO 3P PORTÓN III 1999-2001", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "6289AGS1V", "modelo": "OPEL ASTRA 2P CAB G 2001-2006", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "6341AGSMVWZ", "modelo": "OPEL CORSA 3P PORTÓN E 2014-2019", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8618AGACMVWZ6P", "modelo": "VW GOLF VARIANT 5P BREAK 2013-2019", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "5351AGSMVW6T", "modelo": "MERCEDES C-CLASS 5P BREAK W203 2001-2007", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "5342AGNBLV", "modelo": "MERCEDES A-CLASS 5P PORTÓN W168 1997-2004", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8637AGACMVZ1C", "modelo": "VW ARTEON 4P COUPE 2017-", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "2727ACCV1B", "modelo": "CITROEN C5 5P BREAK 2001-2008", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "6292AGSBL", "modelo": "OPEL COMBO 01 PB GSBL Verde Solar Banda: Azul", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8627AGACMVZ1L", "modelo": "VW TIGUAN 5P TODOTERRENO 2016-2023", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "2739AGSV", "modelo": "CITROEN NEMO FURGONETA 2008-", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "6284AGSBL1B", "modelo": "OPEL ASTRA 4P SEDAN G 1998-2004", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8632AGSGYMVZ1D", "modelo": "SIN DATOS", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8832AGSVZ1M", "modelo": "VOLVO V50 5P BREAK 2003-2012", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "8573AGSVZ", "modelo": "VW POLO 5P PORTÓN IV 2001-2009", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "7245RGNV5RQ", "modelo": "RENAULT MEGANE SCENIC MONOVOLUMEN I 1996-2003", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "7281RGSV2FV1B", "modelo": "RENAULT MASTER III 2P CABINA 2010- DEFLECTOR DELANTERO", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "2741LGSV3FD", "modelo": "CITROEN BERLINGO FURGONETA II 2008-2018 PUERTA DELANTERA IZQUIERDA", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "2912ACL", "modelo": "PIAGIO PORTER HI-JET 86-93", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}, {"eurocode": "5354AGSMV", "modelo": "MERCEDES E-CLASS 4P SEDAN W211 techo cristal 0 2002-2009", "año": "", "sensor": "", "camara": "", "senscama": "", "termico": "", "antniebla": "", "puestos": "", "taller": "Utebo"}];
+
+        // Evento Enter en el input
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                buscar();
+            }
+        });
+
+        // Función para buscar
+        function buscar() {
+            const searchValue = document.getElementById('searchInput').value.trim().toUpperCase();
+            const resultsDiv = document.getElementById('results');
+
+            if (!searchValue) {
+                resultsDiv.innerHTML = '<div class="error-message">⚠️ Por favor, ingresa un eurocode para buscar</div>';
+                return;
+            }
+
+            const resultado = vehiculos.find(v => v.eurocode.toUpperCase() === searchValue);
+
+            if (resultado) {
+                mostrarResultado(resultado);
+            } else {
+                resultsDiv.innerHTML = '<div class="error-message">❌ Eurocode no encontrado en la base de datos</div>';
+            }
+        }
+
+        // Función para mostrar resultado
+        function mostrarResultado(vehiculo) {
+            const resultsDiv = document.getElementById('results');
+
+            resultsDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="eurocode-badge">📋 ${vehiculo.eurocode}</span>
+                        <span class="taller-badge">📍 ${vehiculo.taller}</span>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Modelo</div>
+                            <div class="result-value">${vehiculo.modelo || '-'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Año</div>
+                            <div class="result-value">${vehiculo.año || '-'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Sensor</div>
+                            <div class="result-value ${!vehiculo.sensor ? 'empty' : ''}">${vehiculo.sensor || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Cámara</div>
+                            <div class="result-value ${!vehiculo.camara ? 'empty' : ''}">${vehiculo.camara || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Sens/Cama</div>
+                            <div class="result-value ${!vehiculo.senscama ? 'empty' : ''}">${vehiculo.senscama || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Térmico</div>
+                            <div class="result-value ${!vehiculo.termico ? 'empty' : ''}">${vehiculo.termico || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Ant. Niebla</div>
+                            <div class="result-value ${!vehiculo.antniebla ? 'empty' : ''}">${vehiculo.antniebla || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Puestos</div>
+                            <div class="result-value ${!vehiculo.puestos ? 'empty' : ''}">${vehiculo.puestos || '-'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para limpiar
+        function limpiar() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('searchInput').focus();
+        }
+
+        // Auto-focus al cargar
+        window.onload = function() {
+            document.getElementById('searchInput').focus();
+        };
+    </script>
+</body>
+</html>
