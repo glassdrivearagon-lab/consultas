@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassDrive - Gestión de Stock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #003d82 0%, #0066cc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 40px;
+            border-bottom: 3px solid #e30613;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 300px;
+            height: auto;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #003d82;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #003d82;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-search {
+            background: #003d82;
+            color: white;
+        }
+
+        .btn-search:hover {
+            background: #002d5c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 61, 130, 0.4);
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-refresh {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            background: #218838;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #003d82;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003d82;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-left: 5px solid #003d82;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .eurocode-badge {
+            background: #003d82;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .taller-badge {
+            background: #e30613;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #003d82;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: #333;
+            font-size: 1em;
+        }
+
+        .result-value.empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        .error-message {
+            background: #ffe0e0;
+            border-left: 5px solid #e30613;
+            padding: 20px;
+            border-radius: 8px;
+            color: #cc0000;
+            font-weight: 600;
+            animation: fadeIn 0.5s;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            border-radius: 8px;
+            color: #155724;
+            font-weight: 600;
+            animation: fadeIn 0.5s;
+        }
+
+        .info-message {
+            background: #e3f2fd;
+            border-left: 5px solid #003d82;
+            padding: 15px;
+            border-radius: 8px;
+            color: #003d82;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 600;
+            color: #003d82;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logolargo.jpg" alt="GlassDrive" class="logo">
+        </div>
+
+        <div class="content">
+            <h1>🔍 Gestión de Stock</h1>
+            <p class="subtitle">Sistema de consulta de vehículos por eurocode</p>
+
+            <div class="info-message">
+                ℹ️ <strong>Nota:</strong> Los datos se cargan desde Google Sheets. Haz clic en "🔄 Actualizar" para cargar los últimos datos.
+            </div>
+
+            <div class="stats" id="stats" style="display:none;">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalVehiculos">0</div>
+                    <div class="stat-label">Vehículos en stock</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTalleres">0</div>
+                    <div class="stat-label">Talleres activos</div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos de Google Sheets...</p>
+            </div>
+
+            <div class="search-box">
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Ingresa el eurocode (ej: 7240ACC)" autocomplete="off">
+                    <button class="btn-search" onclick="buscar()">🔍 Buscar</button>
+                    <button class="btn-clear" onclick="limpiar()">✖ Limpiar</button>
+                    <button class="btn-refresh" onclick="cargarDatos()">🔄 Actualizar</button>
+                </div>
+            </div>
+
+            <div id="results" class="results"></div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN: Reemplaza con tu ID de Google Sheet
+        const SHEET_ID = 'TU_GOOGLE_SHEET_ID_AQUI';
+        const SHEET_NAME = 'Stock';
+
+        let vehiculos = [];
+        let talleres = new Set();
+
+        // URL para acceder a Google Sheets como CSV
+        function generarURLCSV() {
+            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
+        }
+
+        // Cargar datos desde Google Sheets
+        async function cargarDatos() {
+            const loading = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+
+            loading.style.display = 'block';
+            resultsDiv.innerHTML = '';
+
+            try {
+                const url = generarURLCSV();
+                console.log('Cargando desde:', url);
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error('No se puede acceder a Google Sheets. Verifica el ID del sheet y que sea público.');
+                }
+
+                const csv = await response.text();
+                vehiculos = parseCSV(csv);
+
+                // Calcular talleres únicos
+                talleres = new Set(vehiculos.map(v => v.taller).filter(t => t));
+
+                // Mostrar estadísticas
+                document.getElementById('totalVehiculos').textContent = vehiculos.length;
+                document.getElementById('totalTalleres').textContent = talleres.size;
+                document.getElementById('stats').style.display = 'flex';
+
+                loading.style.display = 'none';
+                resultsDiv.innerHTML = '<div class="success-message">✅ Datos cargados correctamente (' + vehiculos.length + ' vehículos)</div>';
+
+                // Limpiar búsqueda
+                limpiar();
+
+            } catch (error) {
+                console.error('Error:', error);
+                loading.style.display = 'none';
+                resultsDiv.innerHTML = `<div class="error-message">❌ Error al cargar datos: ${error.message}<br><br>
+                    <strong>Pasos para configurar:</strong><br>
+                    1. Crea un Google Sheet público<br>
+                    2. Reemplaza 'TU_GOOGLE_SHEET_ID_AQUI' en el código con tu ID<br>
+                    3. El ID está en la URL: https://docs.google.com/spreadsheets/d/<strong>ESTE_ES_EL_ID</strong>/edit
+                </div>`;
+            }
+        }
+
+        // Parsear CSV
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            if (lines.length < 2) return [];
+
+            const headers = lines[0].split(',').map(h => h.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+
+                // Parseo simple de CSV (puede mejorar con librería si es necesario)
+                const valores = line.split(',').map(v => v.trim());
+
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = valores[index] || '';
+                });
+
+                if (obj.EUROCODE) {
+                    data.push({
+                        eurocode: obj.EUROCODE || '',
+                        modelo: obj.MODELO || '',
+                        año: obj.AÑO || '',
+                        sensor: obj['SENSOR '] || obj.SENSOR || '',
+                        camara: obj.CAMARA || '',
+                        senscama: obj['SENS/CAMA'] || '',
+                        termico: obj.TERMICO || obj.TÉRMICO || '',
+                        antniebla: obj['ANT.NIEBLA'] || '',
+                        puestos: obj.PUESTOS || '',
+                        taller: obj.Taller || obj.TALLER || ''
+                    });
+                }
+            }
+
+            return data;
+        }
+
+        // Función para buscar
+        function buscar() {
+            const searchValue = document.getElementById('searchInput').value.trim();
+            const resultsDiv = document.getElementById('results');
+
+            if (vehiculos.length === 0) {
+                resultsDiv.innerHTML = '<div class="error-message">⚠️ Primero carga los datos haciendo clic en "🔄 Actualizar"</div>';
+                return;
+            }
+
+            if (!searchValue) {
+                resultsDiv.innerHTML = '<div class="error-message">⚠️ Por favor, ingresa un eurocode para buscar</div>';
+                return;
+            }
+
+            const resultado = vehiculos.find(v => 
+                v.eurocode.toUpperCase() === searchValue.toUpperCase()
+            );
+
+            if (resultado) {
+                mostrarResultado(resultado);
+            } else {
+                resultsDiv.innerHTML = `<div class="error-message">❌ Eurocode no encontrado en los ${vehiculos.length} registros disponibles</div>`;
+            }
+        }
+
+        // Función para mostrar resultado
+        function mostrarResultado(vehiculo) {
+            const resultsDiv = document.getElementById('results');
+
+            resultsDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="eurocode-badge">📋 ${vehiculo.eurocode}</span>
+                        <span class="taller-badge">📍 ${vehiculo.taller}</span>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Modelo</div>
+                            <div class="result-value">${vehiculo.modelo || '-'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Año</div>
+                            <div class="result-value">${vehiculo.año || '-'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Sensor</div>
+                            <div class="result-value ${!vehiculo.sensor ? 'empty' : ''}">${vehiculo.sensor || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Cámara</div>
+                            <div class="result-value ${!vehiculo.camara ? 'empty' : ''}">${vehiculo.camara || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Sens/Cama</div>
+                            <div class="result-value ${!vehiculo.senscama ? 'empty' : ''}">${vehiculo.senscama || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Térmico</div>
+                            <div class="result-value ${!vehiculo.termico ? 'empty' : ''}">${vehiculo.termico || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Ant. Niebla</div>
+                            <div class="result-value ${!vehiculo.antniebla ? 'empty' : ''}">${vehiculo.antniebla || 'No'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Puestos</div>
+                            <div class="result-value ${!vehiculo.puestos ? 'empty' : ''}">${vehiculo.puestos || '-'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para limpiar
+        function limpiar() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('searchInput').focus();
+        }
+
+        // Cargar datos al iniciar
+        window.onload = function() {
+            cargarDatos();
+        };
+
+        // Evento Enter en el input
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                buscar();
+            }
+        });
+    </script>
+</body>
+</html>
